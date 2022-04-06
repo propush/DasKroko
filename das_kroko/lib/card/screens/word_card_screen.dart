@@ -6,18 +6,19 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 class WordCardScreenArguments {
   final int difficultyLevel;
+  final int timerDurationSec;
 
   WordCardScreenArguments({
     required this.difficultyLevel,
+    required this.timerDurationSec,
   });
 }
 
 class WordCardScreen extends StatefulWidget {
   static const routeName = '/word_card_screen';
-  final int difficultyLevel;
+  final WordCardScreenArguments arguments;
 
-  const WordCardScreen({Key? key, required this.difficultyLevel})
-      : super(key: key);
+  const WordCardScreen({Key? key, required this.arguments}) : super(key: key);
 
   @override
   State<WordCardScreen> createState() => _WordCardScreenState();
@@ -29,7 +30,8 @@ class _WordCardScreenState extends State<WordCardScreen> {
   @override
   void initState() {
     super.initState();
-    _word.setDifficultyLevel(widget.difficultyLevel);
+    _word.setDifficultyLevel(widget.arguments.difficultyLevel);
+    _word.setTimerDurationSec(widget.arguments.timerDurationSec);
   }
 
   @override
@@ -53,11 +55,20 @@ class _WordCardScreenState extends State<WordCardScreen> {
                 'Level: ${_word.difficultyLevel}',
                 style: Theme.of(context).textTheme.headline6,
               ),
+              Visibility(
+                key: ObjectKey(_word.word),
+                visible: _word.error.isNotEmpty,
+                child: Text(
+                  'Error: ${_word.error}',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
               const SizedBox(height: 16),
               Visibility(
                 visible: _word.state != WordState.started,
                 child: Text(
                   _word.word,
+                  textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headline3,
                 ),
               ),
@@ -73,13 +84,16 @@ class _WordCardScreenState extends State<WordCardScreen> {
   Widget _startWidget(BuildContext context) {
     switch (_word.state) {
       case WordState.initial:
-        return ElevatedButton(
-          onPressed: () => _word.startGame(),
-          child: const SizedBox(
-            width: 300,
-            child: Text(
-              'Start',
-              textAlign: TextAlign.center,
+        return Visibility(
+          visible: _word.error.isEmpty,
+          child: ElevatedButton(
+            onPressed: () => _word.startGame(),
+            child: const SizedBox(
+              width: 300,
+              child: Text(
+                'Start',
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         );

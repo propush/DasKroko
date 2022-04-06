@@ -14,9 +14,7 @@ class AppRouter {
             routeSettings.arguments as WordCardScreenArguments;
         return MaterialPageRoute(
           builder: (_) {
-            return WordCardScreen(
-              difficultyLevel: wordCardScreenArguments.difficultyLevel,
-            );
+            return WordCardScreen(arguments: wordCardScreenArguments);
           },
         );
       default:

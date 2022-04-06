@@ -16,6 +16,21 @@ mixin _$Word on _Word, Store {
           Computed<String>(() => super.word, name: '_Word.word'))
       .value;
 
+  final _$timerDurationSecAtom = Atom(name: '_Word.timerDurationSec');
+
+  @override
+  int get timerDurationSec {
+    _$timerDurationSecAtom.reportRead();
+    return super.timerDurationSec;
+  }
+
+  @override
+  set timerDurationSec(int value) {
+    _$timerDurationSecAtom.reportWrite(value, super.timerDurationSec, () {
+      super.timerDurationSec = value;
+    });
+  }
+
   final _$difficultyLevelAtom = Atom(name: '_Word.difficultyLevel');
 
   @override
@@ -76,7 +91,44 @@ mixin _$Word on _Word, Store {
     });
   }
 
+  final _$errorAtom = Atom(name: '_Word.error');
+
+  @override
+  String get error {
+    _$errorAtom.reportRead();
+    return super.error;
+  }
+
+  @override
+  set error(String value) {
+    _$errorAtom.reportWrite(value, super.error, () {
+      super.error = value;
+    });
+  }
+
   final _$_WordActionController = ActionController(name: '_Word');
+
+  @override
+  void setError(String error) {
+    final _$actionInfo =
+        _$_WordActionController.startAction(name: '_Word.setError');
+    try {
+      return super.setError(error);
+    } finally {
+      _$_WordActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setTimerDurationSec(int timerDurationSec) {
+    final _$actionInfo =
+        _$_WordActionController.startAction(name: '_Word.setTimerDurationSec');
+    try {
+      return super.setTimerDurationSec(timerDurationSec);
+    } finally {
+      _$_WordActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setDifficultyLevel(int difficultyLevel) {
@@ -125,10 +177,12 @@ mixin _$Word on _Word, Store {
   @override
   String toString() {
     return '''
+timerDurationSec: ${timerDurationSec},
 difficultyLevel: ${difficultyLevel},
 state: ${state},
 timerSeconds: ${timerSeconds},
 hintShown: ${hintShown},
+error: ${error},
 word: ${word}
     ''';
   }

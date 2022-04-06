@@ -4,35 +4,42 @@ import 'package:injectable/injectable.dart';
 
 @singleton
 class CorpusRepository {
-  static const String _adjFile = 'assets/adj.num';
-  static const String _nounFile = 'assets/noun.num';
+  static const String _wordFile = 'assets/words.txt';
   static final Pattern _stringSplitPattern = RegExp(r'\n');
   static final Pattern _splitPattern = RegExp(r'\s+');
 
-  Future<List<NumRow>> getAllAdj() async => _getAllFromFile(_adjFile);
-
-  Future<List<NumRow>> getAllNoun() async => _getAllFromFile(_nounFile);
-
-  Future<List<NumRow>> _getAllFromFile(String fileName) async {
-    print('Loading $fileName');
-    var loadString = rootBundle.loadString(fileName, cache: false);
+  Future<List<NumRow>> loadWords() async {
+    print('Loading $_wordFile');
+    var loadString = rootBundle.loadString(_wordFile, cache: false);
     loadString
-        .then((value) => print('Loaded $fileName: ${value.length} bytes'));
+        .then((value) => print('Loaded $_wordFile: ${value.length} bytes'));
     return loadString
         .then((value) => value
             .split(_stringSplitPattern)
             .where((element) => element.isNotEmpty))
-        .then((value) => value.map((e) => parseNumRow(e.trim())).toList());
+        .then((value) => value.map((e) => parseNumRow(e.trim())).toList()
+          ..sort((a, b) => a.freq.compareTo(b.freq)));
   }
 
   NumRow parseNumRow(String value) {
-    var split = value.split(_splitPattern);
-    if (split.length != 4) {
+    final split = _split(value, _splitPattern);
+    if (split.length != 2) {
       throw FormatException('Invalid row: $value, split: $split');
     }
     return NumRow(
-      double.parse(split[1]).toInt(),
-      split[2],
+      double.parse(split[0]).toInt(),
+      split[1],
     );
+  }
+
+  List<String> _split(String value, Pattern splitPattern) {
+    final start = value.indexOf(splitPattern);
+    if (start == -1) {
+      return List.empty();
+    }
+    return [
+      value.substring(0, start),
+      value.substring(start + 1),
+    ];
   }
 }

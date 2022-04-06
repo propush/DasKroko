@@ -12,18 +12,30 @@ void main() {
     });
 
     test('Load adjective list', () async {
-      final list = await repository.getAllAdj();
-      assert(list.isNotEmpty);
-    });
-
-    test('Load noun list', () async {
-      final list = await repository.getAllNoun();
+      final list = await repository.loadWords();
       assert(list.isNotEmpty);
     });
 
     test('Parse num row', () {
-      assert(repository.parseNumRow('8 11398.44 тот adjpron') ==
-          const NumRow(11398, 'тот'));
+      assert(repository.parseNumRow('3 острые черты') ==
+          const NumRow(3, 'острые черты'));
+    });
+
+    test('Parse num row bad line no word', () {
+      expect(() => repository.parseNumRow('3'), throwsFormatException);
+    });
+
+    test('Parse num row bad line no frequency', () {
+      expect(
+          () => repository.parseNumRow('острые черты'), throwsFormatException);
+    });
+
+    test('Parse num row bad line one arg', () {
+      expect(() => repository.parseNumRow('острые'), throwsFormatException);
+    });
+
+    test('Parse num row bad line empty', () {
+      expect(() => repository.parseNumRow(''), throwsFormatException);
     });
   });
 }

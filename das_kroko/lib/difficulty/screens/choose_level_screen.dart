@@ -1,12 +1,12 @@
 import 'package:das_kroko/app/getit/getit_setup.dart';
 import 'package:das_kroko/card/screens/word_card_screen.dart';
 import 'package:das_kroko/corpus/logic/mobx/corpus.dart';
+import 'package:das_kroko/difficulty/logic/mobx/choose_level.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class ChooseLevelScreen extends StatefulWidget {
   static const String routeName = '/';
-
 
   const ChooseLevelScreen({Key? key}) : super(key: key);
 
@@ -15,7 +15,8 @@ class ChooseLevelScreen extends StatefulWidget {
 }
 
 class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
-   final Corpus _corpus=getIt<Corpus>();
+  final Corpus _corpus = getIt<Corpus>();
+  final Level _level = getIt<Level>();
 
   @override
   void initState() {
@@ -43,24 +44,52 @@ class _ChooseLevelScreenState extends State<ChooseLevelScreen> {
     } else {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: _levelButtons(context),
+        children: [_timerWidget(context)] + _levelButtons(context),
       );
     }
   }
 
   List<Widget> _levelButtons(BuildContext context) {
     return List.generate(
-      3,
-      (level) => SizedBox(
+      _corpus.frequencyDistribution,
+      (level) => Container(
+        margin: const EdgeInsets.all(8),
+        child: SizedBox(
+          width: 300,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(
+                WordCardScreen.routeName,
+                arguments: WordCardScreenArguments(
+                  difficultyLevel: level + 1,
+                  timerDurationSec: _level.timerSeconds,
+                ),
+              );
+            },
+            child: Text('Level ${level + 1}'),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _timerWidget(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 50),
+      child: SizedBox(
         width: 300,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pushNamed(
-              WordCardScreen.routeName,
-              arguments: WordCardScreenArguments(difficultyLevel: level + 1),
-            );
+        child: TextFormField(
+          textAlign: TextAlign.center,
+          initialValue: _level.timerSeconds.toString(),
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            alignLabelWithHint: true,
+            labelText: 'Level Timer (seconds)',
+            helperText: 'How long should the game be?',
+          ),
+          onChanged: (value) {
+            _level.timerSeconds = int.tryParse(value) ?? _level.timerSeconds;
           },
-          child: Text('Level ${level + 1}'),
         ),
       ),
     );
